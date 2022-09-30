@@ -147,3 +147,28 @@ uvicorn ->app(revice,send) -> receive = queue.get()->api(revice)->send
 以上是请求流程，如果在中间件中使用request.body() or reqeust.receive 就会导致queue中的参数被消耗掉,导致中间件的call_next block  
 有人采用重写reqeust.receive的办法，但是这种办法会导致streambody or 巨大的body无法获取的问题(框架通过more body = True 多次receive，重写后循环获取无法停止)。  
 fastapi作者尝试在apirouter中记录参数日志。但是个人觉得这种方法很不python，所以暂不采用。  
+
+#### python 使用.env文件
+https://www.cnblogs.com/xaom/p/16088731.html
+需要python-dotenv库
+
+py文件中使用
+```python
+from dotenv import load_dotenv, find_dotenv
+from pathlib import Path
+
+# 自动搜索.env文件
+load_dotenv(verbose=True)
+# 等价与上面写法
+load_dotenv(find_dotenv(),verbose=True)
+# 指定env文件
+load_dotenv(find_dotenv(Path.cwd().joinpath('test.env')))
+```
+程序中使用
+```python
+import os
+print(os.getenv('ADMIN_HOST'))
+```
+
+
+
