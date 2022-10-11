@@ -2,7 +2,8 @@ from typing import Any, Optional
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from app import models, schemas
+from app import schemas
+import models
 from app.api import deps
 
 router = APIRouter()
@@ -14,8 +15,10 @@ def get_type_list(*, db: Session = Depends(deps.get_db),
                   ) -> Any:
     """字典管理-查询"""
     query = db.query(models.Dict_Type)
-    if name: query = query.filter(models.Dict_Type.name.like("%" + name + "%"))
-    if code: query = query.filter(models.Dict_Type.code.like("%" + code + "%"))
+    if name:
+        query = query.filter(models.Dict_Type.name.like("%" + name + "%"))
+    if code:
+        query = query.filter(models.Dict_Type.code.like("%" + code + "%"))
     total = query.count()
     items = query.limit(limit).offset((page - 1) * limit).all()
     return {"code": 20000, "data": {"items": items, 'total': total}, }
@@ -48,7 +51,8 @@ def update_dict_type(*, db: Session = Depends(deps.get_db), type: schemas.DictTy
 def delete_type_id(type_id: str, db: Session = Depends(deps.get_db), ) -> Any:
     """字典管理-删除"""
     type_ids = [int(type_id) for type_id in type_id.split(",")]
-    db.query(models.Dict_Type).filter(models.Dict_Type.id.in_(type_ids)).delete(synchronize_session=False)
+    db.query(models.Dict_Type).filter(models.Dict_Type.id.in_(
+        type_ids)).delete(synchronize_session=False)
     db.commit()
     return {"code": 20000, "data": "", "message": f"删除成功"}
 
@@ -67,7 +71,8 @@ def read_routes(*, db: Session = Depends(deps.get_db),
     """字典数据明细 查询"""
     query = db.query(models.Dict_Data).join(models.Dict_Type, models.Dict_Type.id == models.Dict_Data.type_id
                                             ).filter(models.Dict_Type.id == type_id)
-    if label: query = query.filter(models.Dict_Data.label.like("%" + label + "%"))
+    if label:
+        query = query.filter(models.Dict_Data.label.like("%" + label + "%"))
     total = query.count()
     dict_data = query.limit(limit).offset((page - 1) * limit).all()
     return {"code": 20000, "data": {"dict_data": dict_data, 'total': total}, }
@@ -100,7 +105,8 @@ def add_data(*, db: Session = Depends(deps.get_db), data: schemas.DictDataCreate
 def delete_data_id(data_id: str, db: Session = Depends(deps.get_db)) -> Any:
     """字典数据明细-删除"""
     data_ids = [int(type_id) for type_id in data_id.split(",")]
-    db.query(models.Dict_Data).filter(models.Dict_Data.id.in_(data_ids)).delete(synchronize_session=False)
+    db.query(models.Dict_Data).filter(models.Dict_Data.id.in_(
+        data_ids)).delete(synchronize_session=False)
     db.commit()
     return {"code": 20000, "data": "", "message": f"删除成功"}
 
@@ -108,6 +114,7 @@ def delete_data_id(data_id: str, db: Session = Depends(deps.get_db)) -> Any:
 @router.get("/data/type_code/{type_code}", response_model=schemas.Response)
 def get_data_type_code(*, db: Session = Depends(deps.get_db), type_code: str) -> Any:
     """根据type.code获取type.data 用于前端user"""
-    data = db.query(models.Dict_Type).filter(models.Dict_Type.code == type_code).one().data
+    data = db.query(models.Dict_Type).filter(
+        models.Dict_Type.code == type_code).one().data
     data = [{"id": i.id, "label": i.label} for i in data]
     return {"code": 20000, "data": data}

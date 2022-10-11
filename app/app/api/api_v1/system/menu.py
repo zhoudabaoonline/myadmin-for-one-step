@@ -2,7 +2,8 @@ from typing import Any, Optional
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from app import models, schemas
+from app import schemas
+import models
 from app.api import deps
 from app.extensions.utils import list_to_tree
 
@@ -18,7 +19,7 @@ def read_routes(title: Optional[str] = None, db: Session = Depends(deps.get_db))
             '%' + title + '%'))  # 暂时前端不进行title查询，前端不知道如何展示
     menus = menus.all()
     menus = list_to_tree([menu.dict() for menu in menus], order="order")
-    return {"code": 20000, "data": menus} 
+    return {"code": 20000, "data": menus}
 
 
 @router.get("/{menu_id}", response_model=schemas.Response)
@@ -32,7 +33,7 @@ def read_menu_id(menu_id: int, db: Session = Depends(deps.get_db), ) -> Any:
 def update_menu(*, db: Session = Depends(deps.get_db), menu_in: schemas.MenuUpdate) -> Any:
     """update a specific menu by id."""
     menu_id = menu_in.id
-    menu_in = menu_in.dict() 
+    menu_in = menu_in.dict()
     db.query(models.Menu).filter(models.Menu.id == menu_id).update(menu_in)
     db.commit()
     return {"code": 20000, "data": "", "message": "修改成功", }

@@ -150,6 +150,7 @@ fastapi作者尝试在apirouter中记录参数日志。但是个人觉得这种�
 
 #### python 使用.env文件
 https://www.cnblogs.com/xaom/p/16088731.html
+
 需要python-dotenv库
 
 py文件中使用
@@ -169,6 +170,20 @@ load_dotenv(find_dotenv(Path.cwd().joinpath('test.env')))
 import os
 print(os.getenv('ADMIN_HOST'))
 ```
+#### my.py的使用，
 
+在此之前，我认为 Python 的类型提示就是一个花瓶，看起来好看，但并没有实质的作用，因为即使类型写错了，或者传错了，程序仍然可以运行，直到我发现了 mypy 这个工具。今天就来聊一聊 mypy。
+
+`mypy 是 Python 中的静态类型检查器`。写完带有类型提示的代码之后，先别运行行，用 mypy 命令来检查下你的代码，如果有错误，会提示你，这让 Python 的类型提示有了真正的作用。后续开发的过程中可以强制 mypy 检查无误后才能上线，借此提高代码的可读性和可维护性。
+
+https://cloud.tencent.com/developer/article/1909585
+
+1. 安装
+
+python3 -m pip install mypy
+
+2. 使用
+
+mypy demo1.py
 
 

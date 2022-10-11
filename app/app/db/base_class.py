@@ -13,8 +13,8 @@ class Base:
     def __tablename__(cls) -> str:
         return cls.__name__.lower()
 
-    def dict(self):
-        return {c.name: getattr(self, c.name, None) for c in self.__table__.columns}
+    def dict(self) -> Any:
+        return {c.name: getattr(self, c.name, None) for c in self.__tablename__.columns}
 
-    def list(self):
-        return [getattr(self, c.name, None) for c in self.__table__.columns]
+    def list(self) -> Any:
+        return [getattr(self, c.name, None) for c in self.__tablename__.columns]

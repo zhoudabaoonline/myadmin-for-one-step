@@ -1,7 +1,8 @@
 from urllib.request import Request
 from app.extensions.utils import list_to_tree
 from app.api import deps
-from app import models, schemas
+from app import schemas
+import models
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends
 from fastapi import FastAPI, File, UploadFile

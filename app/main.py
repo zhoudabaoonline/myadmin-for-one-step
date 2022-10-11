@@ -1,10 +1,8 @@
-import os
+# import os
 
-# TO SUPPORT RUN python main.py in windows,but I use python "app/main.py" to start in liunx
-print(os.path.join(os.path.dirname(__file__), "../.."))
-os.sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-
-
+# # TO SUPPORT RUN python main.py in windows,but I use python "app/main.py" to start in liunx
+# print(os.path.join(os.path.dirname(__file__), "../.."))
+# os.sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 
 from app.extensions.logger import LOGGING_CONFIG
@@ -20,19 +18,23 @@ from fastapi.staticfiles import StaticFiles
 app = FastAPI(
     title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json"
 )
-# set middleware
+# set middleware 静态资源中间件
 register_middleware(app)
 app.mount("/assets", StaticFiles(directory="assets"), name="assets")
 
-# set router
-app.include_router(api_router, prefix=settings.API_V1_STR)
 # set socketio
 app.mount('/', socket_app)
+
+# set router
+app.include_router(api_router, prefix=settings.API_V1_STR)
+
 
 if __name__ == '__main__':
     import uvicorn
 
     # Don't set debug/reload equals True,becauese TimedRotatingFileHandler can't support multi-prcoess
     # or dont't use my LOGGING_CONFIG in debug/reload
+    # 生产
     # uvicorn.run(app='main:app', host="0.0.0.0", port=8080, log_config=LOGGING_CONFIG)
-    uvicorn.run(app='main:app', host="0.0.0.0", port=8080)
+    # 开发
+    uvicorn.run(app='main:app', host="0.0.0.0", port=8080, debug=True, reload=True)

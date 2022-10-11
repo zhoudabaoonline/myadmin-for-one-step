@@ -2,7 +2,8 @@ from typing import Any
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session, joinedload
-from app import models, schemas
+from app import schemas
+import models
 from app.api import deps
 from app.extensions.utils import list_to_tree, dfs_tree_to_list
 
@@ -47,7 +48,8 @@ def read_roles(db: Session = Depends(deps.get_db)) -> Any:
     roles = db.query(models.Role).options(joinedload(models.Role.role_menu).joinedload(models.Role_Menu.menu)).order_by(
         models.Role.order.asc()).all()
     for role in roles:
-        role_menus_list = list_to_tree([deal_menu(role_menu.menu) for role_menu in role.role_menu], order="order")
+        role_menus_list = list_to_tree(
+            [deal_menu(role_menu.menu) for role_menu in role.role_menu], order="order")
         role_info = {
             "id": role.id,
             "name": role.name,
@@ -62,14 +64,16 @@ def read_roles(db: Session = Depends(deps.get_db)) -> Any:
 @router.put("/{id}", response_model=schemas.Response)
 def update_role(*, db: Session = Depends(deps.get_db), id: str, role_in: schemas.RoleUpdate, ) -> Any:
     """角色权限 confirm"""
-    urole = {"name": role_in.name, "description": role_in.description, "order": role_in.order}
+    urole = {"name": role_in.name,
+             "description": role_in.description, "order": role_in.order}
     role = db.query(models.Role).filter(models.Role.id == id)
     role.update(urole)
     # 删除原有菜单
     db.query(models.Role_Menu).filter(models.Role_Menu.role_id == id).delete()
     # 新增现有菜单
     menus_list = dfs_tree_to_list(role_in.routes)
-    menus_list = [models.Role_Menu(**{"role_id": role.one().id, "menu_id": menu_id}) for menu_id in menus_list]
+    menus_list = [models.Role_Menu(
+        **{"role_id": role.one().id, "menu_id": menu_id}) for menu_id in menus_list]
     db.bulk_save_objects(menus_list)
     db.commit()
     return {"code": 20000, "data": {"status": "success"}}
@@ -79,13 +83,15 @@ def update_role(*, db: Session = Depends(deps.get_db), id: str, role_in: schemas
 def create_role(*, db: Session = Depends(deps.get_db), role_create: schemas.RoleCreate, ) -> Any:
     """ADD new Role."""
     # ROLE
-    role = {"name": role_create.name, "description": role_create.description, "order": role_create.order}
+    role = {"name": role_create.name,
+            "description": role_create.description, "order": role_create.order}
     role = models.Role(**role)
     db.add(role)
     db.flush()
     # ROLE_MENU
     menus_list = dfs_tree_to_list(role_create.routes)
-    menus_list = [models.Role_Menu(**{"role_id": role.id, "menu_id": menu_id}) for menu_id in menus_list]
+    menus_list = [models.Role_Menu(
+        **{"role_id": role.id, "menu_id": menu_id}) for menu_id in menus_list]
     db.bulk_save_objects(menus_list)
     db.commit()
     return {"code": 20000, "data": {"id": role.id}}

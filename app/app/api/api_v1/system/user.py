@@ -7,7 +7,8 @@ from sqlalchemy.orm import Session, joinedload
 from io import BytesIO
 from openpyxl import load_workbook
 
-from app import models, schemas
+from app import schemas
+import models
 from app.api import deps
 from app.core.config import settings
 from app.core.security import get_password_hash
